@@ -25,19 +25,19 @@
 \maketitle
 
 \begin{abstract}
-Resistive random-access memory (RRAM) is the leading candidate to replace embedded flash at logic nodes below 28~nm, where the floating-gate stack no longer scales. This survey reviews the device, its dominant operating mechanism, and how it is integrated into modern CMOS. The metal--insulator--metal (MIM) cell and the standard taxonomy of resistive switching are first introduced. Among the available switching mechanisms, the industry has converged on the valence-change mechanism (VCM) using HfO\textsubscript{2} or TaO\textsubscript{x} as the switching oxide. The cell is then placed in its production context: a 1-transistor--1-resistor (1T1R) configuration in which a CMOS MOSFET sets the compliance current, addresses the cell, and isolates unselected cells from sneak-path leakage. The select-FET design problem is examined explicitly, including a worked sizing example on a 0.25~$\mu$m planar process from the literature, and the constraints are tracked across the planar bulk, FD-SOI, and FinFET architectures that host RRAM in industry today.
+Resistive random-access memory (RRAM) is one of three leading candidates---alongside spin-transfer-torque magnetoresistive RAM (STT-MRAM) and phase-change memory (PCM)---to replace embedded flash at logic nodes below 28~nm, where the floating-gate stack no longer scales. This survey reviews the device, its dominant operating mechanism, and how it is integrated into modern CMOS. The metal--insulator--metal (MIM) cell and the standard taxonomy of resistive switching are first introduced. Within RRAM, the industry has converged on the valence-change mechanism (VCM) using HfO\textsubscript{2} or TaO\textsubscript{x} as the switching oxide, for reasons related to process compatibility, thermal stability, and switching current that are made explicit in the comparison with PCM and conductive-bridging RAM (CBRAM). The cell is then placed in its production context: a 1-transistor--1-resistor (1T1R) configuration in which a CMOS MOSFET sets the compliance current, addresses the cell, and isolates unselected cells from sneak-path leakage. The select-FET design problem is examined explicitly, with a worked sizing example on a 0.25~$\mu$m planar process from the literature, and the constraints are tracked across the planar bulk, FD-SOI, and FinFET architectures that host RRAM in industry today. A dedicated section addresses reliability, retention drift, and disturb mechanisms, and the paper closes with a brief outlook on analog in-memory computing as the most active forward-looking application.
 \end{abstract}
 
 \begin{IEEEkeywords}
-Resistive random-access memory, RRAM, ReRAM, valence-change mechanism, oxygen vacancy, HfO\textsubscript{2}, TaO\textsubscript{x}, embedded non-volatile memory, 1T1R, 1-transistor 1-resistor, BEOL integration, FinFET, FD-SOI.
+Resistive random-access memory, RRAM, ReRAM, valence-change mechanism, oxygen vacancy, HfO\textsubscript{2}, TaO\textsubscript{x}, embedded non-volatile memory, 1T1R, BEOL integration, FinFET, FD-SOI, in-memory computing.
 \end{IEEEkeywords}
 
 \section{Introduction}
 \IEEEPARstart{F}{or} more than two decades, embedded flash (eFlash) has served as the default non-volatile memory in microcontrollers, automotive ICs, and IoT system-on-chips. Its physical foundation---a floating-gate or charge-trap MOSFET that retains charge across a tunnel oxide of roughly 7--10~nm---is incompatible with logic scaling: retention specifications fix a minimum oxide thickness that does not shrink with the logic node, and the supporting high-voltage charge pumps add significant mask count and process complexity. By the time the industry reached the 28~nm node, eFlash had become a process integration burden that foundries were no longer willing to carry forward, and TSMC publicly stopped offering eFlash beyond 28~nm in the late 2010s~\cite{ref_hellenbrand2024}. The resulting gap created the commercial opening for emerging non-volatile memories.
 
-Among the emerging candidates, resistive RAM (RRAM) is attractive because its cell is a simple two-terminal metal--insulator--metal (MIM) stack of materials already qualified in CMOS fabrication, it is built in the back-end-of-line (BEOL) above the transistors, and its mask adder is small. The cell does not stand alone; in production it is paired with a select MOSFET in a 1-transistor--1-resistor (1T1R) configuration, which makes the technology directly relevant to MOSFET device modeling.
+Three technologies---STT-MRAM, RRAM, and PCM---have emerged as the serious contenders for embedded NVM at advanced nodes, with each occupying a different niche~\cite{ref_hellenbrand2024}. STT-MRAM is the most mature at FinFET-class nodes, with shipping eMRAM macros at TSMC 22ULL/16~nm, Samsung 28FDS, and GlobalFoundries 22FDX. PCM had a major standalone deployment in Intel--Micron 3D~XPoint (Optane) from 2017--2022, and is currently shipping in embedded form at STMicroelectronics in their 28~nm FD-SOI automotive platform~\cite{ref_hellenbrand2024}. RRAM is most established at planar bulk and FD-SOI nodes, with embedded products at TSMC 40/28/22~nm and at GlobalFoundries via Weebit~Nano. RRAM is attractive because its cell is a simple two-terminal metal--insulator--metal (MIM) stack of materials already qualified in CMOS fabrication, it is built in the back-end-of-line (BEOL) above the transistors, and its mask adder is small. The cell does not stand alone; in production it is paired with a select MOSFET in a 1-transistor--1-resistor (1T1R) configuration, which makes the technology directly relevant to MOSFET device modeling.
 
-This survey is organized around four questions, mirroring the project presentation. Section~\ref{sec:what} introduces the RRAM cell and the family of resistive switching mechanisms, focusing on the valence-change mechanism (VCM) that dominates today's commercial cells. Section~\ref{sec:why} addresses why RRAM is being adopted, where it fits in the memory hierarchy, and where it currently sits in industry. Section~\ref{sec:how} treats the integration of the cell into CMOS through the 1T1R architecture and the select-FET sizing problem, with a worked example on a planar process. Section~\ref{sec:tech} compares the three MOSFET architectures---planar bulk, FD-SOI, and FinFET---that host RRAM at production nodes. Section~\ref{sec:conclusion} concludes.
+This survey is organized around four questions, mirroring the project presentation. Section~\ref{sec:what} introduces the RRAM cell and the family of resistive switching mechanisms, focusing on the valence-change mechanism (VCM) that dominates today's commercial cells. Section~\ref{sec:why} addresses why RRAM is being adopted, why VCM specifically rather than competing RRAM mechanisms, and where it fits among the emerging NVMs and the broader memory hierarchy. Section~\ref{sec:how} treats the integration of the cell into CMOS through the 1T1R architecture and the select-FET sizing problem, with a worked example on a planar process. Section~\ref{sec:rel} addresses reliability, retention, and disturb mechanisms. Section~\ref{sec:tech} compares the three MOSFET architectures---planar bulk, FD-SOI, and FinFET---that host RRAM at production nodes. Section~\ref{sec:conclusion} concludes with an outlook on analog in-memory computing.
 
 \section{What is RRAM?}\label{sec:what}
 
@@ -63,13 +63,13 @@ Many physical mechanisms can produce a reversible resistance change in a thin fi
 \label{fig_taxonomy}
 \end{figure}
 
-\textit{Electrochemical Metallization Mechanism (ECM).} An electrochemically active electrode (typically Ag or Cu) dissolves under positive bias, drifts through a solid electrolyte, and electrocrystallizes into a metallic filament that bridges the electrodes~\cite{ref_waser2009}. ECM operates at very low voltages but the metallic filament is sensitive to thermal activation, which complicates retention.
+\textit{Electrochemical Metallization Mechanism (ECM).} An electrochemically active electrode (typically Ag or Cu) dissolves under positive bias, drifts through a solid electrolyte, and electrocrystallizes into a metallic filament that bridges the electrodes~\cite{ref_waser2009}. ECM can operate at low voltages (SET thresholds as low as ${\sim}0.2$~V have been reported in Ag/GeS systems, although typical commercial CBRAM operating windows fall in the 0.5--2~V range), but the metallic filament is sensitive to thermal activation, which complicates retention.
 
 \textit{Thermochemical Mechanism (TCM).} Switching is driven by Joule heating, with SET and RESET at the same polarity but different current levels (unipolar). NiO is the canonical TCM material~\cite{ref_waser2009}. TCM has lost commercial relevance because each RESET is essentially a controlled local meltdown of the filament, and cycle-to-cycle variability is intractable.
 
 \textit{Valence-Change Mechanism (VCM).} The mobile species is the oxygen anion (or, equivalently, the oxygen vacancy~$V_\mathrm{O}$). Under field, oxygen drifts away from a region of the oxide, leaving an oxygen-deficient sub-stoichiometric path of higher conductivity. Because metal cations along the path are reduced to a lower oxidation state (e.g., Hf$^{4+}\!\rightarrow\!$Hf$^{3+}$, Ta$^{5+}\!\rightarrow\!$Ta$^{4+}$), the mechanism takes its name from this valence change~\cite{ref_waser2009}. Reversing the bias drives oxygen back. VCM is bipolar and is the family that includes HfO\textsubscript{x} and TaO\textsubscript{x} RRAM~\cite{ref_wong2012,ref_ielmini2016}.
 
-The industry has converged on VCM, with HfO\textsubscript{2} and TaO\textsubscript{x} as the two switching oxides that have crossed into foundry production~\cite{ref_wong2012,ref_hellenbrand2024}. HfO\textsubscript{2} is already qualified as the high-$\kappa$ gate dielectric in modern HKMG MOSFETs, which makes it especially attractive: deposition equipment, contamination protocols, and reliability physics are already characterized in the fab. TaO\textsubscript{x} systems achieve higher endurance than HfO\textsubscript{x} in optimized lab structures, and TaO\textsubscript{x}-based ReRAM has been commercialized by Weebit~Nano in partnership with GlobalFoundries (22FDX) and SkyWater (130~nm)~\cite{ref_hellenbrand2024}.
+The industry has converged on VCM, with HfO\textsubscript{2} and TaO\textsubscript{x} as the two switching oxides that have crossed into foundry production~\cite{ref_wong2012,ref_hellenbrand2024}. The reasons are made explicit later in the comparison with PCM and CBRAM (Section~\ref{sec:why_vcm}), but in summary: HfO\textsubscript{2} is already qualified as the high-$\kappa$ gate dielectric in modern HKMG MOSFETs, so deposition equipment and contamination protocols are already characterized in the fab, and the oxygen-vacancy filament is more thermally stable than the metallic filaments produced by ECM.
 
 \subsection{How VCMs Work}
 A VCM cell is a passive MIM stack: a transition-metal oxide a few nanometers thick is sandwiched between a top electrode and a bottom electrode (Fig.~\ref{fig_mim}). When a voltage is applied, oxygen ions and oxygen vacancies migrate through the oxide and reorganize into a conductive filament that connects the two electrodes. Reversing or reducing the applied bias partially disconnects the filament, returning the cell to a high-resistance state~\cite{ref_wong2012,ref_ielmini2016}.
@@ -92,47 +92,63 @@ The full SET/RESET cycle is shown in Fig.~\ref{fig_cycle}. In the as-fabricated 
 
 In the LRS, conduction is approximately ohmic and dominated by the metallic-like sub-stoichiometric filament. In the HRS, conduction is more complex and depends on the material system: trap-assisted tunneling, Poole--Frenkel emission, and Schottky emission at the oxide/electrode interface have all been reported~\cite{ref_wong2012}. The result is a non-trivial $I$--$V$ shape that depends on electrode work function, oxide stoichiometry, and process conditions.
 
+The hysteresis loop visible in measured RRAM $I$--$V$ curves is a direct consequence of the cell's resistance being a function of internal state (filament configuration) rather than only of the instantaneous applied voltage. RESET partially ruptures the filament---it does \textit{not} restore the oxide to its as-fabricated insulating state, and forming need not be repeated---so on the return sweep the cell carries the memory of the previous SET. This places RRAM in the broader memristor family proposed by Chua, in which the resistance is governed by an internal state variable that integrates the device history~\cite{ref_ielmini2016,ref_ielmini_wong2018}.
+
 \section{Why RRAM?}\label{sec:why}
 
 \subsection{The eFlash Replacement Argument}
 The first and primary commercial driver for RRAM is the replacement of embedded flash at advanced nodes. Embedded flash does not scale below approximately 28~nm: the tunnel oxide cannot be thinned without sacrificing 10-year retention, and the high-voltage charge pumps required to program the cell add area and mask count that grow as a fraction of the die at advanced nodes~\cite{ref_hellenbrand2024}. RRAM avoids both problems. The MIM cell stack is on the order of 5--10~nm thick and does not rely on charge storage, so retention is governed by the thermal stability of the oxygen-vacancy distribution rather than by tunnel-oxide leakage. Programming voltages, while higher than core-logic $V_\mathrm{DD}$, are an order of magnitude below those required for flash, which makes the on-die charge pump correspondingly smaller~\cite{ref_wong2012,ref_hellenbrand2024}.
 
-A second advantage is back-end-of-line (BEOL) integration. The MIM stack is fabricated in the metal layers above the transistors, between two interconnect levels. The front-end logic flow is essentially unchanged, and the memory module adds only one or two extra masks~\cite{ref_wong2012}. This stands in sharp contrast to embedded flash, which requires its own front-end module. BEOL integration also enables stacking, which gives RRAM a path toward higher density that planar charge-storage memories do not have.
+A second advantage is back-end-of-line (BEOL) integration. The MIM stack is fabricated in the metal layers above the transistors, between two interconnect levels. The front-end logic flow is essentially unchanged, and the memory module adds only one or two extra masks~\cite{ref_wong2012}. This stands in sharp contrast to embedded flash, which requires its own front-end module. BEOL integration also opens a path toward stacking which planar charge-storage memories do not have.
 
-A third, more speculative possibility is that the same simplicity that lets RRAM displace eFlash could eventually let it displace volatile memories such as SRAM and DRAM in some workloads, particularly those dominated by infrequent writes and large read-mostly state~\cite{ref_wong2012}.
+\subsection{Why VCM Specifically: Comparison with PCM and CBRAM}\label{sec:why_vcm}
+Of the three redox-based RRAM families, VCM is the only one that has reached significant production volume in embedded eFlash replacement. The reasons emerge from a head-to-head comparison with the two main competing mechanisms within the RRAM family, and with PCM as a closely related two-terminal NVM that shares much of the cell architecture but switches by a different physical mechanism.
 
-\subsection{Industry Adoption}
-By the mid-2020s embedded RRAM is a foundry-process option at multiple companies. Fig.~\ref{fig_industry} reproduces the industry timeline assembled by Hellenbrand~\textit{et~al.} for FRAM, MRAM, PCRAM, and RRAM from 2017 through 2026~\cite{ref_hellenbrand2024}. RRAM has the densest population in the chart, with announcements from TSMC, UMC, Fujitsu, Infineon, Microsemi, Intel, Weebit~Nano (with GlobalFoundries), and others.
+\textit{VCM versus CBRAM/ECM.} CBRAM cells use Ag or Cu as the active electrode, neither of which is welcome in a logic foundry: Cu is a deep-level recombination center in silicon and a contamination concern even with diffusion barriers, and Ag is not a standard CMOS material at all. Adopting CBRAM at a logic foundry therefore requires dedicated tooling and protocols that VCM does not~\cite{ref_waser2009,ref_wong2012}. Beyond process compatibility, the physics also disfavors CBRAM for embedded NVM: the metallic filament is more sensitive to thermal activation than the oxygen-vacancy filament of a VCM cell, which complicates retention at the 105--150\,$^\circ$C operating temperatures required for automotive and IoT applications~\cite{ref_waser2009,ref_ielmini2016}. CBRAM has nonetheless been commercialized in low-temperature niches (e.g., Adesto's CBRAM at 130~nm), but has not crossed into HKMG-class logic.
+
+\textit{VCM versus PCM.} PCM stores information in the crystalline (low-resistance) versus amorphous (high-resistance) state of a chalcogenide such as Ge\textsubscript{2}Sb\textsubscript{2}Te\textsubscript{5}. A chalcogenide-based phase-change-like cell was the foundational technology of the Intel--Micron 3D~XPoint memory (sold under the Optane brand), which shipped at meaningful volume from 2017 until its discontinuation in 2022; the precise switching mechanism was never publicly disclosed and is generally believed to be a phase-change-class storage element distinct from conventional Ge\textsubscript{2}Sb\textsubscript{2}Te\textsubscript{5} melt-quench PCM~\cite{ref_hellenbrand2024}, and PCM is currently in production for embedded NVM at STMicroelectronics in a 28~nm FD-SOI automotive platform (the Stellar microcontroller family)~\cite{ref_hellenbrand2024}. PCM is therefore not a failed technology---it is a serious competitor, and notably ST's deployment on 28~nm FD-SOI places it directly in the same architectural niche that Weebit/GlobalFoundries occupy with TaO\textsubscript{x} eRRAM on the 22FDX platform; eRRAM does not have FD-SOI to itself. The reasons VCM has nonetheless taken the larger share of embedded RRAM-class deployments are primarily about current and thermal envelope:
+\begin{itemize}
+\item PCM RESET (amorphization) requires heating the chalcogenide above its melting temperature ($T_m\!\approx\!600\,^\circ$C for Ge\textsubscript{2}Sb\textsubscript{2}Te\textsubscript{5}) followed by rapid quenching, while SET (crystallization) holds the cell between the glass transition $T_g$ and $T_m$ to allow nucleation and growth. The melt-quench requirement is what drives RESET currents to ${\sim}100~\mu$A or more in scaled cells. The resulting select-FET width is several times larger than the corresponding VCM 1T1R, eroding the cell-area win~\cite{ref_hellenbrand2024,ref_wong2012}.
+\item Heat from a PCM cell can disturb its neighbors, particularly at small pitch, which limits density. VCM cells dissipate orders of magnitude less power per switching event and have no such thermal crosstalk pathway~\cite{ref_ielmini2016}.
+\item HfO\textsubscript{2} and TaO\textsubscript{x}, the VCM workhorse oxides, are already qualified materials in HKMG flows; chalcogenides are not.
+\end{itemize}
+PCM remains advantageous when very tight resistance distributions or genuinely binary states are required (notably, 3D~XPoint exploited tight chalcogenide-cell distributions to enable selectorless 3D crosspoint operation). For embedded eFlash replacement at moderate write rates, VCM is generally preferred.
+
+\textit{VCM versus STT-MRAM.} STT-MRAM is not within the RRAM family but is the dominant emerging eNVM at FinFET-class nodes and therefore the most relevant external comparison. STT-MRAM has substantially higher endurance ($10^{14}$+ vs.~$10^6$--$10^9$ cycles), no forming step, and deterministic switching. RRAM wins on cell area (filamentary cells are smaller than the magnetic tunnel junction stack with its ferromagnetic reference layer), on mask adder, and on continuously programmable conductance for analog applications. The result is that the two technologies coexist in the embedded NVM market: MRAM at sub-22~nm FinFET nodes where endurance and density-per-cache-line dominate, RRAM at planar/FD-SOI nodes where mask count, area, and write-rare workloads dominate~\cite{ref_hellenbrand2024}.
+
+\subsection{The Emerging NVM Landscape}
+By the mid-2020s embedded RRAM is a foundry-process option at multiple companies. Fig.~\ref{fig_industry} reproduces the industry timeline assembled by Hellenbrand~\textit{et~al.} for FRAM, MRAM, PCRAM, and RRAM from 2017 through 2026~\cite{ref_hellenbrand2024}. RRAM and MRAM together account for the majority of recent announcements, and their respective domains in the industry chart are visible at a glance: eMRAM populates the FinFET-class nodes (16~nm, 14~nm, 8~nm) at TSMC, Samsung, and GlobalFoundries, while eRRAM clusters at the planar bulk and FD-SOI nodes (22--40~nm). PCM is sparser in the chart but is in active production at one major automotive supplier. The clear practical implication is that the eMRAM ecosystem is currently more mature than the eRRAM ecosystem at FinFET-class nodes, and eRRAM has not yet caught up; whether it does is one of the open questions for the next several process generations.
 
 \begin{figure*}[!t]
 \centering
 \includegraphics[width=6.5in]{fig5.png}
-\caption{Industry roadmap for emerging non-volatile memories from 2017 through 2026. RRAM has the densest set of announcements among the four families. Reproduced from~\cite{ref_hellenbrand2024}.}
+\caption{Industry roadmap for emerging non-volatile memories from 2017 through 2026. eMRAM and eRRAM together account for most of the recent announcements; eMRAM populates the FinFET-class advanced nodes while eRRAM clusters at planar bulk and FD-SOI. Reproduced from~\cite{ref_hellenbrand2024}.}
 \label{fig_industry}
 \end{figure*}
 
-The dominant players, with the most representative recent announcements, are:
+The headline RRAM deployments are:
 \begin{itemize}
 \item \textit{TSMC.} HfO\textsubscript{2}-based embedded RRAM at 40~nm, 28~nm, and 22~nm planar bulk, with a 12~nm FinFET demonstration presented at IEDM~2023~\cite{ref_hellenbrand2024}.
 \item \textit{Intel.} A 22~nm FinFET RRAM cell using a TaO\textsubscript{x}-based switching oxide~\cite{ref_hellenbrand2024}.
-\item \textit{IBM.} Investigating both TaO\textsubscript{x} and HfO\textsubscript{2} stacks for analog in-memory compute, exploiting the continuous conductance levels available in VCM cells~\cite{ref_hellenbrand2024}.
+\item \textit{Weebit~Nano + GlobalFoundries / SkyWater.} TaO\textsubscript{x} ReRAM IP integrated into the 22FDX FD-SOI platform and the SkyWater 130~nm bulk platform~\cite{ref_hellenbrand2024}.
+\item \textit{IBM.} Investigating both TaO\textsubscript{x} and HfO\textsubscript{2} stacks for analog in-memory compute, exploiting the continuous conductance levels available in VCM cells~\cite{ref_hellenbrand2024,ref_ielmini_wong2018}.
 \end{itemize}
 
-The applications are nearly exclusively embedded: firmware code, calibration constants, AI inference weights, and secure keys in microcontrollers, automotive ICs, IoT system-on-chips, and secure elements~\cite{ref_hellenbrand2024}. What unifies these workloads is that writes are infrequent (often write-once at provisioning), retention requirements are stringent, and security or latency forbids using an external SPI flash chip.
+The applications are nearly exclusively embedded: firmware code, calibration constants, AI inference weights, and secure keys in microcontrollers, automotive ICs, IoT system-on-chips, and secure elements~\cite{ref_hellenbrand2024}. What unifies these workloads is that writes are infrequent (often write-once at provisioning), retention requirements are stringent, and security or latency forbids using an external SPI flash chip. RRAM has not displaced DRAM in working memory and is not a credible SRAM replacement: SRAM operates at sub-1~V $V_\mathrm{DD}$ and at write rates that would exceed RRAM endurance within hours of operation, while RRAM SET requires 1.5--2~V at the bitline and forming requires 3--4~V.
 
 \subsection{Position in the Memory Hierarchy}
 A useful way to see RRAM's niche is to place it directly against the dominant memory technologies. Table~\ref{tab:memory_compare} summarizes the comparison.
 
-\begin{table}[!t]
+\begin{table*}[!t]
 \caption{Comparison of RRAM and Conventional Memory Technologies\label{tab:memory_compare}}
 \centering
 \footnotesize
 \renewcommand{\arraystretch}{1.2}
-\begin{tabular}{|p{0.85in}|p{0.42in}|p{0.42in}|p{0.5in}|p{0.45in}|p{0.5in}|}
+\begin{tabular}{|p{1.0in}|p{0.7in}|p{0.7in}|p{0.85in}|p{0.85in}|p{1.1in}|}
 \hline
  & \textbf{SRAM} & \textbf{DRAM} & \textbf{Flash NAND} & \textbf{Flash NOR} & \textbf{RRAM} \\
 \hline
-Volatile? & Volatile & Volatile & Non-vol. & Non-vol. & Non-vol. \\
+Volatile? & Volatile & Volatile & Non-volatile & Non-volatile & Non-volatile \\
 \hline
 Cell size & $\sim$50~$F^2$ & $\sim$6~$F^2$ & $\sim$4~$F^2$ & $\sim$10~$F^2$ & $\sim$6--12~$F^2$ \\
 \hline
@@ -140,7 +156,7 @@ Read speed & Fast & Fast & Slow & Fast & Fast \\
 \hline
 Write speed & Fast & Fast & Slow & Slow & Medium \\
 \hline
-Endurance & Unlimited & $\sim$$10^{15}$ & $10^4$--$10^5$ & $10^4$--$10^5$ & $10^6$--$10^9$ \\
+Endurance & Unlimited & $\sim$$10^{15}$ & $10^4$--$10^5$ & $10^4$--$10^5$ & $10^4$--$10^6$ prod.; $10^{12}$ lab \\
 \hline
 Write voltage & $V_\mathrm{DD}$ & $V_\mathrm{DD}$ & $\sim$20~V & $\sim$20~V & $V_\mathrm{DD}$+boost $\sim$2~V \\
 \hline
@@ -149,9 +165,9 @@ Granularity & per-bit & per-bit & block-erase & block-erase & per-bit \\
 On-chip use & Yes & No & No & Yes & Yes \\
 \hline
 \end{tabular}
-\end{table}
+\end{table*}
 
-The pattern is that RRAM is an embedded non-volatile technology with cell area between DRAM and SRAM, fast read, medium write, per-bit programmability, and a write voltage that requires only a modest on-die boost. Its endurance ($10^6$--$10^9$ cycles) is two to three orders of magnitude better than flash but several orders worse than DRAM, which is why RRAM has not displaced DRAM in working memory. Its niche is precisely the embedded NVM role formerly held by NOR flash, with substantially better scalability and a credible path to denser arrays.
+The pattern is that RRAM is an embedded non-volatile technology with cell area between DRAM and SRAM, fast read, medium write, per-bit programmability, and a write voltage that requires only a modest on-die boost. Its endurance in production ($10^4$--$10^6$ cycles for HfO\textsubscript{x} macros, with TaO\textsubscript{x} reaching up to $10^{12}$ in lab demonstrators) is comparable to or moderately better than flash but several orders worse than DRAM, which is why RRAM has not displaced DRAM in working memory. Its niche is precisely the embedded NVM role formerly held by NOR flash, with substantially better scalability and a credible path to denser arrays.
 
 \section{RRAM in CMOS: 1T1R Integration}\label{sec:how}
 
@@ -173,14 +189,14 @@ I_\mathrm{sneak} \;=\; \frac{(N-1)\,V_r}{2\,R_\mathrm{LRS}}
 \end{equation}
 limits the maximum array fan-out $N$ at which the read margin remains acceptable~\cite{ref_ielmini2016}. The crossbar promises a theoretical $4F^2$ cell footprint and a path to true three-dimensional stacking, but only works in production if the sneak current is suppressed by an effective two-terminal selector at every node. No such selector has yet entered foundry production for embedded RRAM, which is why every commercial RRAM macro shipping today is 1T1R.
 
-\begin{table}[!t]
+\begin{table*}[!t]
 \caption{Bias Schemes for 1T1R and Crossbar Arrays\label{tab:bias}}
 \centering
 \footnotesize
 \renewcommand{\arraystretch}{1.25}
-\begin{tabular}{|p{0.42in}|p{1.55in}|p{1.55in}|}
+\begin{tabular}{|p{0.55in}|p{2.85in}|p{2.85in}|}
 \hline
-\textbf{Op.} & \textbf{1T1R} & \textbf{Crossbar} \\
+\textbf{Operation} & \textbf{1T1R} & \textbf{Crossbar} \\
 \hline
 READ & BL: 0.3--0.4~V; SL:~0~V; WL:~$V_\mathrm{DD}$. MOSFET in triode; sense $I_\mathrm{cell}$ vs.~$I_\mathrm{ref}$; $R_\mathrm{HRS}/R_\mathrm{LRS}\!\sim\!10$--$1000\times$ in HfO\textsubscript{2}. & WL:~$-V_r/2$, BL:~$+V_r/2$. Sneak current $I_\mathrm{sneak}=(N{-}1)V_r/(2R_\mathrm{LRS})$ limits array fan-out. \\
 \hline
@@ -191,7 +207,7 @@ RESET & SL: 1.5~V; BL:~0~V; WL:~$V_\mathrm{DD}$. MOSFET in saturation (reverse p
 \end{tabular}
 \\[2pt]
 \raggedright Compiled from~\cite{ref_niu2016,ref_ielmini2016}.
-\end{table}
+\end{table*}
 
 \subsection{Why 1T1R: Mapping RRAM Requirements to Transistor Design}
 The 1T1R cell is preferred in production because the MOSFET solves three RRAM problems that the crossbar cannot solve at the array level. Each requirement maps directly to a transistor design knob, summarized in Table~\ref{tab:knobs}.
@@ -201,7 +217,7 @@ The 1T1R cell is preferred in production because the MOSFET solves three RRAM pr
 \centering
 \footnotesize
 \renewcommand{\arraystretch}{1.2}
-\begin{tabular}{|p{1.05in}|p{2.1in}|}
+\begin{tabular}{|p{0.95in}|p{2.15in}|}
 \hline
 \textbf{RRAM requirement} & \textbf{Transistor design knob} \\
 \hline
@@ -237,7 +253,7 @@ Niu~\textit{et~al.} provide an explicit worked example of the sizing problem on 
 \begin{equation}
 V_\mathrm{BL} \;=\; V_\mathrm{RRAM} + V_\mathrm{DS},
 \end{equation}
-and requiring the MOSFET to remain in saturation during forming and SET ($V_\mathrm{DS}>V_{GS}-V_T$), the design constraint becomes $V_\mathrm{BL}-V_\mathrm{SET}>V_{GS}-V_T$. Choosing $W=1.14~\mu$m and $L=0.24~\mu$m at $V_g=0.9$~V sets the saturation current to $I_\mathrm{CC}=10~\mu$A by Eq.~\eqref{eq:sizing}. The resulting LRS resistance is $R_\mathrm{LRS}=V_c/I_\mathrm{CC}=0.4~\mathrm{V}/10~\mu\mathrm{A}=40~\mathrm{k}\Omega$ (with $V_c\!\approx\!0.4$~V for HfO\textsubscript{2}), while the transistor on-resistance from the saturation model is $R_\mathrm{on}\!\approx\!200~\Omega$, comfortably below the 40~k$\Omega$ LRS as required by the read-margin constraint. Forming requires a higher voltage of 3.2--4.0~V on the bitline; the post-forming SET voltage falls to 0.8--1.1~V and RESET to 1.0--1.5~V~\cite{ref_niu2016}.
+and requiring the MOSFET to remain in saturation during forming and SET ($V_\mathrm{DS}>V_{GS}-V_T$), the design constraint becomes $V_\mathrm{BL}-V_\mathrm{SET}>V_{GS}-V_T$. Choosing $W=1.14~\mu$m and $L=0.24~\mu$m at $V_g=0.9$~V sets the saturation current to $I_\mathrm{CC}=10~\mu$A by Eq.~\eqref{eq:sizing}. The resulting LRS resistance is $R_\mathrm{LRS}=V_c/I_\mathrm{CC}=(0.4~\mathrm{V})/(10~\mu\mathrm{A})=40~\mathrm{k}\Omega$ (with $V_c\!\approx\!0.4$~V for HfO\textsubscript{2}), while the transistor on-resistance from the saturation model is $R_\mathrm{on}\!\approx\!200~\Omega$, comfortably below the 40~k$\Omega$ LRS as required by the read-margin constraint. Forming requires a higher voltage of 3.2--4.0~V on the bitline; the post-forming SET voltage falls to 0.8--1.1~V and RESET to 1.0--1.5~V~\cite{ref_niu2016}.
 
 \begin{figure}[!t]
 \centering
@@ -248,21 +264,45 @@ and requiring the MOSFET to remain in saturation during forming and SET ($V_\mat
 
 The measured $I$--$V$ curves of this 1T1R cell, for two different ALD deposition temperatures, are shown in Fig.~\ref{fig_niu_iv}. Higher deposition temperature reduces residual carbon impurities from the metal-organic precursor and stabilizes the resistance distributions, lowering both $V_\mathrm{SET}$ and $V_\mathrm{RESET}$ and tightening cycle-to-cycle variability~\cite{ref_niu2016}. The case study makes the broader point that VCM RRAM electrical metrics are inseparable from process choices on the underlying materials stack.
 
+\section{Reliability and Disturb Mechanisms}\label{sec:rel}
+
+\subsection{Endurance and the Fresh-Oxide Question}
+A natural question for any non-volatile memory is whether each RESET fully restores the cell to its as-fabricated state. For RRAM the answer is no, and the distinction matters. Forming, which performs the initial soft dielectric breakdown, happens once. The first SET reuses the path opened by forming; every subsequent SET and RESET reorganizes oxygen vacancies along (or near) that same path. The oxide therefore retains a memory of every cycle: oxygen ions accumulate at electrode interfaces, lattice strain builds up, and a small fraction of defects become permanently fixed in positions that no SET pulse can move~\cite{ref_ielmini2016}. Endurance, defined as the number of cycles for which a programmable read margin is maintained, is the time to failure of this gradually wearing path.
+
+In practice, production HfO\textsubscript{x} cells reach $10^4$--$10^6$ cycles, and laboratory TaO\textsubscript{x} cells have demonstrated up to $10^{12}$ cycles in single devices, suggesting that the ceiling is materials- and stack-engineering limited rather than fundamental~\cite{ref_hellenbrand2024,ref_ielmini2016}. Two failure modes dominate. In one, the LRS resistance drifts upward over cycles because the filament cannot be fully reformed; in the other, the HRS resistance drifts downward because residual conductive paths persist after RESET. Either way, the read window between LRS and HRS narrows until a comparator can no longer discriminate the two states. Endurance and retention are tightly coupled to the same process variables (oxide stoichiometry, electrode work function, getter layer thickness), which is why they are usually optimized as a single triple alongside switching uniformity~\cite{ref_niu2016,ref_ielmini2016}.
+
+\subsection{Retention and Read Disturb}
+Retention is a ten-year claim about the thermal stability of the programmed resistance distribution. Empirically, LRS retention is governed by Arrhenius-activated dissolution of the filament, with extracted activation energies in the 1.0--1.5~eV range for HfO\textsubscript{x}~\cite{ref_ielmini2016}. The HRS distribution is also non-stationary in time: even small read voltages slowly redistribute oxygen vacancies and broaden the resistance distribution, producing what is conventionally called read disturb.
+
+Fig.~\ref{fig_disturb} shows the dominant disturb signature in a HfO\textsubscript{2} 1T1R cell: the LRS and HRS distributions broaden with time, with the broadening accelerated at elevated temperature~\cite{ref_ielmini2016}. The HRS tail in particular tends to drift toward lower resistance, narrowing the read window from above. This is the underlying reason that retention temperature and array bake tests are central to RRAM qualification: a cell that is comfortably in HRS at $25\,^\circ$C may have drifted into the read-uncertain region at $125\,^\circ$C after several years.
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=3.4in]{fig12.png}
+\caption{Statistical study of retention for the LRS (a) and HRS (b) distributions in a HfO\textsubscript{2} RRAM cell at multiple temperatures and elapsed times. Both distributions broaden with time, narrowing the read window; the HRS tail in particular drifts toward lower resistance and is the dominant read-disturb signature. Reproduced from~\cite{ref_ielmini2016}.}
+\label{fig_disturb}
+\end{figure}
+
+In the 1T1R architecture, write disturb on neighboring cells is small because the select FET isolates each row, and read disturb at the bit level is well-controlled because the read voltage (0.3--0.4~V) is far below the SET threshold. The dominant disturb in 1T1R is the cumulative time-and-temperature drift of the resistance distributions described above. The crossbar architecture additionally suffers from program disturb: the half-selected cells along the selected wordline and bitline see $V_w/2$ during every write, and over many writes this drives the same Arrhenius drift that is otherwise gradual. This is one more reason that crossbars require a strongly nonlinear selector to stop charge from flowing through half-selected cells.
+
+\subsection{Voltage Envelope and Charge-Pump Implications}
+A practical question for any embedded NVM is whether the program voltages can be generated on-chip from the core $V_\mathrm{DD}$, or whether an off-chip supply is required. Forming a HfO\textsubscript{x} cell needs 3.2--4.0~V at the bitline; SET and RESET need 1.5--2~V; read needs 0.3--0.4~V~\cite{ref_niu2016}. At a per-cell SET current of 10--50~$\mu$A, even a kilobit-scale program operation draws on the order of milliamps. Both the voltage and the current are well within the envelope that on-die switched-capacitor charge pumps can deliver, and every shipping embedded RRAM macro generates these voltages internally; no off-chip high-voltage supply is required. This is in sharp contrast to flash, which needs 15--20~V at the cell and therefore a much larger on-die pump network~\cite{ref_hellenbrand2024,ref_wong2012}. The charge-pump area savings are part of why RRAM's mask adder ends up smaller than flash even though the cell stack itself is similar in complexity.
+
 \section{Technology-Dependent Challenges: Planar, FD-SOI, and FinFET}\label{sec:tech}
 The same RRAM cell is integrated on top of three different MOSFET architectures in production today. Because the select-FET problem changes character with each architecture, the achievable cell density, $I_\mathrm{CC}$ control granularity, and forming headroom all change as well. Table~\ref{tab:arch} summarizes the comparison.
 
 \begin{table}[!t]
 \caption{Comparison of MOSFET Architectures Hosting RRAM\label{tab:arch}}
 \centering
-\footnotesize
-\renewcommand{\arraystretch}{1.25}
-\begin{tabular}{|p{0.85in}|p{0.6in}|p{0.6in}|p{0.6in}|}
+\scriptsize
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{0.78in}|p{0.55in}|p{0.85in}|p{0.65in}|}
 \hline
 \textbf{Parameter} & \textbf{Planar bulk} & \textbf{FD-SOI} & \textbf{FinFET} \\
 \hline
 $V_\mathrm{DD}$ & 1.0~V & 0.9--1.0~V & 0.8--0.9~V \\
 \hline
-$I_\mathrm{CC}$ control & $W/L$ + $V_g$ & $W/L$ + $V_g$ + back-gate & $N_\mathrm{fin}$ + $V_g$ \\
+$I_\mathrm{CC}$ control & $W/L + V_g$ & $W/L + V_g$ + back-gate & $N_\mathrm{fin} + V_g$ \\
 \hline
 SS (mV/dec) & 80--100 & 65--75 & $\sim$65 \\
 \hline
@@ -292,10 +332,12 @@ Production eRRAM & TSMC 28~nm & STMicro / GF (22FDX) & TSMC 12~nm \\
 
 The dependence of the cell electrical characteristics on $I_\mathrm{CC}$, common to all three architectures, is shown in Fig.~\ref{fig_iv_family}. The select MOSFET sets the compliance, and the LRS resistance, RESET current, and read margin all track it. The architectural choice therefore matters not only for area and array size but for the achievable granularity of the $I_\mathrm{CC}$ knob---continuous on planar bulk, continuously trimmable on FD-SOI, and quantized on FinFET.
 
-\section{Conclusion}\label{sec:conclusion}
-Resistive RAM is now the standard embedded non-volatile memory at logic nodes that have outgrown floating-gate flash. Its commercial success rests on three foundations: a simple two-terminal MIM cell of materials already qualified in CMOS fabrication; a back-end-of-line integration that leaves the front-end logic essentially unchanged; and the 1T1R cell architecture in which a CMOS select MOSFET handles current limiting, addressing, and isolation. The dominant operating mechanism is the valence-change family of HfO\textsubscript{x} and TaO\textsubscript{x} cells, in which oxygen-vacancy migration creates and disconnects a filamentary conductive path.
+\section{Conclusion and Outlook}\label{sec:conclusion}
+RRAM is one of three serious contenders, alongside STT-MRAM and PCM, to replace embedded flash at logic nodes that have outgrown the floating-gate stack. Within RRAM, the industry has converged on the valence-change mechanism using HfO\textsubscript{2} or TaO\textsubscript{x} as the switching oxide, for reasons that are concrete rather than abstract: the oxides are already qualified materials in HKMG flows, the oxygen-vacancy filament is more thermally stable than the metallic filaments of CBRAM, and the switching current is an order of magnitude smaller than the melt-quench currents of PCM. Each of those is a process-level or device-level fact that competes with the shared advantages of any MIM cell---small footprint, two-terminal simplicity, BEOL placement above the transistors.
 
-The MOSFET-modeling content of the technology is concentrated in the select FET, whose sizing maps the RRAM compliance current $I_\mathrm{CC}$ onto a $W/L$ design through the saturation current model, and whose subthreshold characteristics set the maximum achievable array size through cumulative sneak leakage. The Niu~2016 case study on a 0.25~$\mu$m planar process shows the sizing problem in its simplest continuous form. Moving to FD-SOI adds a back-gate that gives per-die $I_\mathrm{CC}$ trim; moving to FinFET drops the cell area and the subthreshold slope but quantizes the sizing knob and tightens the forming headroom. Each architectural step on the MOSFET roadmap reshapes the select-FET problem rather than eliminating it, which is why RRAM remains an active integration target as logic continues to scale.
+The MOSFET-modeling content of the technology is concentrated in the select FET. Three RRAM electrical requirements---compliance-current limiting during SET and forming, suppression of sneak leakage from unselected cells, and a clean read margin---map directly onto three transistor design knobs: $W/L$ sizing in the saturation current model, low subthreshold slope and DIBL, and low $R_\mathrm{on}$. The Niu~2016 case study on a 0.25~$\mu$m planar process makes this mapping explicit. Moving to FD-SOI adds a back-gate that gives per-die $I_\mathrm{CC}$ trim; moving to FinFET drops the cell area and the subthreshold slope but quantizes the sizing knob and tightens the forming headroom. Each architectural step on the MOSFET roadmap reshapes the select-FET problem rather than eliminating it, which is one reason RRAM, MRAM, and PCM each face a different practical integration story at advanced nodes despite sharing a common 1T1R cell template.
+
+The most active forward-looking direction for RRAM is not as a memory replacement at all but as the storage element of an analog matrix-vector multiplier for AI inference. The continuous, programmable conductance of a VCM cell---accessible by varying the compliance current during SET---turns the array into a physical implementation of Ohm's law and Kirchhoff's current law, performing the dot products at the heart of neural-network inference directly inside the memory and bypassing the von Neumann bottleneck~\cite{ref_ielmini_wong2018}. Several foundries (TSMC, Samsung, IBM) and startups have published RRAM-based in-memory compute demonstrations using this approach~\cite{ref_hellenbrand2024,ref_ielmini_wong2018}. If RRAM does win a role beyond embedded NVM, this is the most plausible one---not as DRAM or SRAM replacement, but as the compute fabric for workloads where the memory and the multiplier are physically the same device.
 
 \begin{thebibliography}{1}
 \bibliographystyle{IEEEtran}
@@ -314,6 +356,9 @@ G.\ Niu, H.-D.\ Kim, R.\ Roelofs, E.\ Perez, M.\ A.\ Schubert, P.\ Zaumseil, I.\
 
 \bibitem{ref_hellenbrand2024}
 M.\ Hellenbrand, I.\ Teck, and J.\ L.\ MacManus-Driscoll, ``Progress of emerging non-volatile memory technologies in industry,'' \textit{MRS Commun.}, vol.\ 14, no.\ 6, pp.\ 1099--1112, Nov.\ 2024, doi:~10.1557/s43579-024-00660-2.
+
+\bibitem{ref_ielmini_wong2018}
+D.\ Ielmini and H.-S.\ P.\ Wong, ``In-memory computing with resistive switching devices,'' \textit{Nature Electron.}, vol.\ 1, no.\ 6, pp.\ 333--343, Jun.\ 2018, doi:~10.1038/s41928-018-0092-2.
 
 \end{thebibliography}
 
